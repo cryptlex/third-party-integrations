@@ -23,7 +23,7 @@
     "msw": "2.7.0",
     "msw-auto-mock": "^0.25.0",
     "stripe": "17.4.0",
-    "typescript": "5.6.3",
+    "typescript": "5.8.2",
     "vitest": "^2.1.8"
   }
 }
