@@ -1,6 +1,6 @@
 {
   "name": "@cryptlex/payment-platform-integrations",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Hono server for creating Cryptlex Users and Licenses based on events send by the corresponding payment platforms",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,6 @@
     "build:fastspring:aws": "tsc && esbuild ./fastspring/index.aws.ts --bundle --outfile=./dist/index.js --platform=node --target=node22 --allow-overwrite",
     "test:stripe": "vitest stripe/test",
     "test:fastspring": "vitest fastspring/test"
-
   },
   "license": "MIT",
   "dependencies": {
@@ -21,7 +20,7 @@
     "openapi-fetch": "0.13.0"
   },
   "devDependencies": {
-    "@cryptlex/web-api-types": "1.31.0",
+    "@cryptlex/web-api-types": "^2.14.0",
     "@tsconfig/strictest": "^2.0.5",
     "esbuild": "0.24.0",
     "msw": "2.7.0",
