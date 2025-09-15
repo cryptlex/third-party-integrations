@@ -5,7 +5,7 @@ import { insertUser } from "@shared-utils/userActions";
 import { getCustomAttributes, ORDER_ID_METADATA_KEY, SUBSCRIPTION_ID_METADATA_KEY } from "../utils/getCustomAttributes";
 
 import { components } from "@cryptlex/web-api-types/production";
-type LicenseBody = components["schemas"]["LicenseRequestModel"];
+type LicenseRequestModel = components["schemas"]["LicenseRequestModel"];
 
 /**
  * Create a license on order.completed event (handles both one time and subscription based licenses)
@@ -49,7 +49,7 @@ export async function handleOrderCreated(
       ];
     }
   
-    const body: LicenseBody = {
+    const body: LicenseRequestModel = {
       productId: customAttributes.productId,
       licenseTemplateId: customAttributes.licenseTemplateId,
       metadata: metadata,

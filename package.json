@@ -20,7 +20,7 @@
     "openapi-fetch": "0.13.0"
   },
   "devDependencies": {
-    "@cryptlex/web-api-types": "^2.14.0",
+    "@cryptlex/web-api-types": "2.14.0",
     "@tsconfig/strictest": "^2.0.5",
     "esbuild": "0.24.0",
     "msw": "2.7.0",
