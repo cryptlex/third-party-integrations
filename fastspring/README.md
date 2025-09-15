@@ -15,10 +15,10 @@ This project provides two preconfigured deployment targets based on your runtime
 - **Node**: For running the server in a Node.js environment, including containerized deployments.
 
 ### AWS Lambda
-To set up deployments on AWS Lambda, review the provided [aws.yml](./.github/workflows/aws.yml) GitHub Actions workflow. This file contains instructions for building, and deploying your application using GitHub Actions.
+To set up deployments on AWS Lambda, review the provided [aws.yml](../github/workflows/aws.yml) GitHub Actions workflow. This file contains instructions for building, and deploying your application using GitHub Actions.
 
 ### Node
-To run the application in a Node.js environment, including Docker-based workflows, refer to the [Dockerfile](./Dockerfile).
+To run the application in a Node.js environment, including Docker-based workflows, refer to the [Dockerfile](../Dockerfile).
 
 ## Support
 If you have questions, need assistance, or experience any issues, please feel free to reach out to our support team at [support@cryptlex.com](mailto:support@cryptlex.com). We’re here to help!

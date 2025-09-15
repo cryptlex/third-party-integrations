@@ -1,4 +1,4 @@
-import type { paths } from '@cryptlex/web-api-types';
+import type { paths } from '@cryptlex/web-api-types/production';
 import createClient, { Middleware } from 'openapi-fetch';
 
 /**

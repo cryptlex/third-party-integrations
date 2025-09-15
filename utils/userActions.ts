@@ -61,7 +61,7 @@ async function updateUser(userId: string, customerName: string, client: CtlxClie
  * @param client openapi-fetch client
  * @returns User ID
  */
-export async function insertUser(email: string, customerName: string, client: CtlxClientType): Promise<string> {
+export async function insertUser(email: string, customerName: string, client: CtlxClientType): Promise<string| null> {
     let userId: string | null = null
 
     // Check if user already exists in Cryptlex Users
@@ -90,7 +90,7 @@ export async function insertUser(email: string, customerName: string, client: Ct
  * @param client openapi-fetch client
  * @returns User ID
  */
-export async function upsertUser(email: string, customerName: string, client: CtlxClientType): Promise<string> {
+export async function upsertUser(email: string, customerName: string, client: CtlxClientType): Promise<string| null> {
     // Check if user already exists in Cryptlex Users
     let userId: string | null = null
     userId = await checkUserExists(email, client);

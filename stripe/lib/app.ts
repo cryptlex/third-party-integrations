@@ -5,7 +5,7 @@ import { handleInvoicePaid } from './handlers/handleInvoicePaid';
 import { handleCheckoutSessionFlow } from './handlers/handleCheckoutSession';
 import { handleCustomerCreated } from './handlers/handleCustomerCreated';
 import createClient from 'openapi-fetch';
-import { paths } from '@cryptlex/web-api-types';
+import { paths } from '@cryptlex/web-api-types/production';
 import { getAuthMiddleware } from '@shared-utils/client';
 
 const app = new Hono()

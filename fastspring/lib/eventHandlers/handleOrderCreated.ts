@@ -4,6 +4,8 @@ import { createLicense } from "@shared-utils/licenseActions";
 import { insertUser } from "@shared-utils/userActions";
 import { getCustomAttributes, ORDER_ID_METADATA_KEY, SUBSCRIPTION_ID_METADATA_KEY } from "../utils/getCustomAttributes";
 
+import { components } from "@cryptlex/web-api-types/production";
+type LicenseRequestModel = components["schemas"]["LicenseRequestModel"];
 
 /**
  * Create a license on order.completed event (handles both one time and subscription based licenses)
@@ -21,9 +23,10 @@ export async function handleOrderCreated(
       client,
     );
     const item = orderCompletedData.items[0];
-    const ids: {
+    const customAttributes: {
       productId: string;
       licenseTemplateId: string;
+      subscriptionInterval?: string;
     } = getCustomAttributes(item);
     let metadata;
 
@@ -46,13 +49,15 @@ export async function handleOrderCreated(
       ];
     }
   
-
-    const body = {
-      productId: ids.productId,
-      licenseTemplateId: ids.licenseTemplateId,
+    const body: LicenseRequestModel = {
+      productId: customAttributes.productId,
+      licenseTemplateId: customAttributes.licenseTemplateId,
       metadata: metadata,
       userId: userId,
     };
+    if (customAttributes.subscriptionInterval) {
+      body.subscriptionInterval = customAttributes.subscriptionInterval;
+    }
     return await createLicense(client,body)
   } else {
     throw Error(
