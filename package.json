@@ -22,7 +22,7 @@
   "devDependencies": {
     "@cryptlex/web-api-types": "2.14.0",
     "@tsconfig/strictest": "^2.0.5",
-    "esbuild": "0.24.0",
+    "esbuild": "0.25.10",
     "msw": "2.7.0",
     "msw-auto-mock": "^0.25.0",
     "stripe": "17.4.0",
