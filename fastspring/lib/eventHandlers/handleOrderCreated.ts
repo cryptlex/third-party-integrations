@@ -21,6 +21,8 @@ export async function handleOrderCreated(
       orderCompletedData.customer.email,
       orderCompletedData.customer.first,
       client,
+      orderCompletedData.customer.last,
+      orderCompletedData.customer.company,
     );
     const item = orderCompletedData.items[0];
     const customAttributes: {
