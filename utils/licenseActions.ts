@@ -1,3 +1,4 @@
+import { components } from "@cryptlex/web-api-types/production";
 import { HandlerReturn } from ".";
 import { CtlxClientType } from "./client";
 
@@ -19,8 +20,7 @@ export  const   createLicense = async (client:CtlxClientType, body:any): Handler
 }
 
 /** Get ID of a License that has the subscription ID saved in metadata  */
-export async function getLicenseId(client:CtlxClientType,subscriptionId: string, subscriptionIdMetadataKey:string):Promise<string> {
-
+export async function getLicensesBySubscriptionId(client:CtlxClientType,subscriptionId: string, subscriptionIdMetadataKey:string):Promise<components["schemas"]["LicenseDto"][]> {
     const licenses = await client.GET('/v3/licenses',
         {
             params:
@@ -31,15 +31,30 @@ export async function getLicenseId(client:CtlxClientType,subscriptionId: string,
     )
     if (licenses.error)
     {
-        throw Error(`Failed to get license with fast-spring subscriptionId: ${subscriptionId}`);
+        throw Error(`Failed to get license(s) with subscriptionId: ${subscriptionId}`);
 
     }
-    if (licenses.data.length === 1 && licenses.data[0]) {
-        const licenseId = licenses.data[0].id;
-        return licenseId;
-    } else if (licenses.data.length > 1) {
-        throw Error(`${licenses.data.length} licenses with fast-spring subscriptionId :${subscriptionId} found.`);
+    if (licenses.data.length > 0) {
+        return licenses.data
     } else {
-        throw Error(`No license found with fast-spring subscriptionId: ${subscriptionId}`);
+        throw Error(`No license found with subscriptionId: ${subscriptionId}`);
     }
+}
+
+/**
+ * Get license template by ID via client.
+ * @param client
+ * @param licenseTemplateId
+ * @returns The license template object or throws error if not found.
+ */
+export async function getLicenseTemplate(client: CtlxClientType, licenseTemplateId: string): Promise<any> {
+    const response = await client.GET("/v3/license-templates/{id}", {
+        params: {
+            path: { id: licenseTemplateId }
+        }
+    });
+    if (response.error) {
+        throw Error(`Failed to get license template with id: ${licenseTemplateId}. ${response.error.code ? `${response.error.code}: ${response.error.message}` : ""}`);
+    }
+    return response.data;
 }

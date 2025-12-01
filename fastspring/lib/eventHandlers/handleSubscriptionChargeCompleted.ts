@@ -1,6 +1,6 @@
 import { HandlerReturn } from "@shared-utils/index.js";
 import { SUBSCRIPTION_ID_METADATA_KEY } from "../utils/getCustomAttributes.js";
-import { getLicenseId } from "@shared-utils/licenseActions.js";
+import {  getLicensesBySubscriptionId } from "@shared-utils/licenseActions.js";
 import { CtlxClientType } from "@shared-utils/client.js";
 
 export async function handleSubscriptionChargeCompleted(
@@ -8,50 +8,51 @@ export async function handleSubscriptionChargeCompleted(
   subscriptionChargeCompletedEvent: any
 ): HandlerReturn {
   const subscriptionChargeCompletedData = subscriptionChargeCompletedEvent.data;
+  const requests: any[] = [];
+  const responses: any[] = [];
   // logic to renew a license
   if (
     subscriptionChargeCompletedData.status === "successful" &&
     subscriptionChargeCompletedData.order.items.length > 0
   ) {
     const subscriptionId = subscriptionChargeCompletedData.subscription.id;
-    const licenseId = await getLicenseId(client, subscriptionId, SUBSCRIPTION_ID_METADATA_KEY);
-    const license = await client.POST("/v3/licenses/{id}/renew", {
+    const licenses = await getLicensesBySubscriptionId(client, subscriptionId, SUBSCRIPTION_ID_METADATA_KEY);
+    for (const license of licenses) {
+    const renewalRequest =  client.POST("/v3/licenses/{id}/renew", {
       params: {
         path: {
-          id: licenseId,
+          id: license.id,
         },
       },
     });
-    if (license.error) {
-      throw Error(
-        `Renewal of license with licenseId: ${licenseId} failed with error: ${license.error.code} ${license.error.message}.`
-      );
-    }
-    if (license.data?.suspended) {
-      const license = await client.PATCH("/v3/licenses/{id}", {
+    requests.push(renewalRequest);
+    if (license?.suspended) {
+      const unsuspensionRequest = await client.PATCH("/v3/licenses/{id}", {
         params: {
           path: {
-            id: licenseId,
+            id: license.id,
           },
         },
         body: {
           suspended: false,
         },
       });
-      if (license.error) {
-        throw Error(
-          `Lifting of the suspended state of license with licenseId: ${licenseId} after renewal failed with error: ${license.error.code} ${license.error.message}.  `
-        );
-      }
+      requests.push(unsuspensionRequest);
     }
-    return {
-      message: "License renewed successfully.",
-      data: { license: license.data },
-      status: 200,
-    };
-  } else {
+    
+  }
+  await Promise.all(requests.map(async (request) => {
+    const response = await request;
+    responses.push(response.data);
+  }));
+  return {
+    message: "License(s) renewed and unsuspended successfully.",
+    data: { responses: responses },
+    status: 200,
+  };
+ } else {
     throw Error(
-      `Could not process the subscription.charge.completed webhook event with Id ${subscriptionChargeCompletedEvent.id} `
+      `Could not process the subscription.charge.completed webhook event with Id ${subscriptionChargeCompletedEvent.id}. ${responses ? `Licenses renewed: ${responses.map((response: any) => response.id).join(", ")}` : "No License renewed" } `
     );
   }
 }
