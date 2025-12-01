@@ -11,7 +11,7 @@ export async function handleSubscriptionDeactivated(
   const subscriptionDeactivatedData = subscriptionDeactivatedEvent.data;
   // Logic to delete a license
   if (subscriptionDeactivatedData.state == "deactivated") {
-    const subscriptionId = subscriptionDeactivatedData.Id;
+    const subscriptionId = subscriptionDeactivatedData.id;
     const licenseId = await getLicenseId(client, subscriptionId, SUBSCRIPTION_ID_METADATA_KEY);
     const license = await client.DELETE(`/v3/licenses/{id}`, {
       params: {
