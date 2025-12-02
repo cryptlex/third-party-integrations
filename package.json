@@ -1,6 +1,6 @@
 {
   "name": "@cryptlex/payment-platform-integrations",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Hono server for creating Cryptlex Users and Licenses based on events send by the corresponding payment platforms",
   "main": "index.js",
   "scripts": {
@@ -27,6 +27,6 @@
     "msw-auto-mock": "^0.25.0",
     "stripe": "17.4.0",
     "typescript": "5.6.3",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.9"
   }
 }
