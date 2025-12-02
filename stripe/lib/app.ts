@@ -20,19 +20,19 @@ app.post('/v1', async (context) => {
         const { STRIPE_WEBHOOK_SECRET, CRYPTLEX_PRODUCT_ID, CRYPTLEX_ACCESS_TOKEN, CRYPTLEX_WEB_API_BASE_URL } = env(context);
 
         if (typeof (STRIPE_WEBHOOK_SECRET) !== 'string') {
-            throw Error('STRIPE_WEBHOOK_SECRET was not found in environment variables.');
+            throw new Error('STRIPE_WEBHOOK_SECRET was not found in environment variables.');
         }
 
         if (typeof (CRYPTLEX_PRODUCT_ID) !== 'string') {
-            throw Error('CRYPTLEX_PRODUCT_ID was not found in environment variables.');
+            throw new Error('CRYPTLEX_PRODUCT_ID was not found in environment variables.');
         }
 
         if (typeof (CRYPTLEX_ACCESS_TOKEN) !== 'string') {
-            throw Error('CRYPTLEX_ACCESS_TOKEN was not found in environment variables.');
+            throw new Error('CRYPTLEX_ACCESS_TOKEN was not found in environment variables.');
         }
 
         if (typeof (CRYPTLEX_WEB_API_BASE_URL) !== 'string') {
-            throw Error('CRYPTLEX_WEB_API_BASE_URL was not found in environment variables.');
+            throw new Error('CRYPTLEX_WEB_API_BASE_URL was not found in environment variables.');
         }
 
         /** Instantiate Web API client */
@@ -42,7 +42,7 @@ app.post('/v1', async (context) => {
 
         const signature = context.req.header('stripe-signature');
         if (!signature) {
-            throw Error('No stripe-signature header was found.')
+            throw new Error('No stripe-signature header was found.')
         }
         const body = await context.req.text();
         // Verify event to be sent by Stripe.
@@ -65,7 +65,7 @@ app.post('/v1', async (context) => {
                 result = await handleCustomerCreated({ event: event, client: CtlxClient });
                 return context.json(result, result.status);
             default:
-                throw Error(`Webhook with event type ${event.type} is not supported.`);
+                throw new Error(`Webhook with event type ${event.type} is not supported.`);
         }
     } catch (error) {
         console.error(error);

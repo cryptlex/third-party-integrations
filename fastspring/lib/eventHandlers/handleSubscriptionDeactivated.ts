@@ -35,7 +35,7 @@ export async function handleSubscriptionDeactivated(
       status: 204
     };
   } else {
-    throw Error(
+    throw new Error(
       `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}.
        ${responses ? `All licenses were not deleted` : "No License deleted" } `
     );

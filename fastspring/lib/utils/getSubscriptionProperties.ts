@@ -8,7 +8,7 @@ export async function getSubscriptionProperties(subscription:string, items:any[]
     } else {
         const item = items.find((item: any) => item.subscription.id === subscription);
         if (!item) {
-            throw Error(`Parent subscription${subscription} not found in items`);
+            throw new Error(`Parent subscription${subscription} not found in items`);
         }
         const template = await getLicenseTemplate(client, item.attributes.cryptlex_license_template_id);
         parentSubscriptionPropertiesDictionary[subscription] = { subscriptionInterval: item?.attributes?.cryptlex_license_subscription_interval ?? template.subscriptionInterval, subscriptionStartTrigger: template.subscriptionStartTrigger };

@@ -8,7 +8,7 @@ export function getCustomAttributes(item: any) {
     if ((productId && licenseTemplateId) || (isBundle)) {
         return { productId, licenseTemplateId, subscriptionInterval, mappingsQuantity, isBundle };
     }
-    throw Error(`Attribute type does not conform to the required type for custom attribute of product: ${item.product} `);
+    throw new Error(`Attribute type does not conform to the required type for custom attribute of product: ${item.product} `);
 }
 
 export const SUBSCRIPTION_ID_METADATA_KEY = "fastspring_subscription_id";

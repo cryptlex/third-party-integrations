@@ -10,7 +10,7 @@ export async function handleInvoicePaid({ event, productId, client }: { event: S
     const subscriptionId = getSubscriptionId(invoice.subscription);
 
     if (!invoice.customer_email) {
-        throw Error(`Customer email not found in invoice with ID: ${invoice.id}`);
+        throw new Error(`Customer email not found in invoice with ID: ${invoice.id}`);
     }
 
     if (invoice.status == "paid" && invoice.billing_reason == "subscription_create") {
@@ -29,7 +29,7 @@ export async function handleInvoicePaid({ event, productId, client }: { event: S
         });
 
         if (license.error) {
-            throw Error(license.error.message);
+            throw new Error(license.error.message);
         }
 
         return { message: "License created successfully.", data: { license: license.data }, status: 200 };
@@ -56,7 +56,7 @@ export async function handleInvoicePaid({ event, productId, client }: { event: S
         const licenseId = licenses.data?.[0]?.id;
 
         if (!licenseId) {
-            throw Error(`While attempting to renew license, no license with ${subscriptionId} value in the metadata key ${SUBCRIPTION_ID_KEY} was found.`)
+            throw new Error(`While attempting to renew license, no license with ${subscriptionId} value in the metadata key ${SUBCRIPTION_ID_KEY} was found.`)
         }
 
         const license = await client.POST('/v3/licenses/{id}/renew', {
@@ -70,6 +70,6 @@ export async function handleInvoicePaid({ event, productId, client }: { event: S
         return ({ data: { license: license.data }, message: `License renewed with new expiry date set to: ${license.data?.expiresAt}`, status: 201 });
     }
     else {
-        throw Error(`Unhandled event of type "${event.type}". Invoice status: ${invoice.status}, Billing reason: ${invoice.billing_reason}.`);
+        throw new Error(`Unhandled event of type "${event.type}". Invoice status: ${invoice.status}, Billing reason: ${invoice.billing_reason}.`);
     }
 }

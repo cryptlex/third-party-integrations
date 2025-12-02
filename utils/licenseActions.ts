@@ -8,7 +8,7 @@ export  const   createLicense = async (client:CtlxClientType, body:any): Handler
         body,
       });
       if (license.error) {
-        throw Error(
+        throw new Error(
           `License creation failed with error: ${license.error.code} ${license.error.message}. User with ID ${body.userId} has been created.`
         );
       }
@@ -31,13 +31,13 @@ export async function getLicensesBySubscriptionId(client:CtlxClientType,subscrip
     )
     if (licenses.error)
     {
-        throw Error(`Failed to get license(s) with subscriptionId: ${subscriptionId}`);
+        throw new Error(`Failed to get license(s) with subscriptionId: ${subscriptionId}`);
 
     }
     if (licenses.data.length > 0) {
         return licenses.data
     } else {
-        throw Error(`No license found with subscriptionId: ${subscriptionId}`);
+        throw new Error(`No license found with subscriptionId: ${subscriptionId}`);
     }
 }
 
@@ -54,7 +54,7 @@ export async function getLicenseTemplate(client: CtlxClientType, licenseTemplate
         }
     });
     if (response.error) {
-        throw Error(`Failed to get license template with id: ${licenseTemplateId}. ${response.error.code ? `${response.error.code}: ${response.error.message}` : ""}`);
+        throw new Error(`Failed to get license template with id: ${licenseTemplateId}. ${response.error.code ? `${response.error.code}: ${response.error.message}` : ""}`);
     }
     return response.data;
 }

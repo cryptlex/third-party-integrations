@@ -31,7 +31,7 @@ export async function handleSubscriptionPaymentOverdue(client: CtlxClientType, p
         }))
         return {  message: "License suspended successfully.", data: { license: responses }, status: 200 }
     } else {
-        throw Error(
+        throw new Error(
             `Could not process the subscription.payment.overdue webhook event with Id ${paymentOverdueEvent.id}.
              ${responses ? `Licenses suspended: ${responses.map((response: any) => response.id).join(", ")}` : "No License suspended" } `
         );
