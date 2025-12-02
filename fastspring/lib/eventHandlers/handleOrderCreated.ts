@@ -45,6 +45,7 @@ export async function handleOrderCreated(
     let subscriptionInterval: string | undefined = customAttributes?.subscriptionInterval;
     let subscriptionStartTrigger: LicenseRequestModel["subscriptionStartTrigger"] | undefined = undefined;
     if(customAttributes?.isBundle) {
+      // the bundle product itself won't be created in cryptlex, so we skip it
       continue;
     }
     // Check if this is a bundle item
