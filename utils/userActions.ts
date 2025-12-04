@@ -12,7 +12,7 @@ async function checkUserExists(email: string, client: CtlxClientType) {
         },
     })
     if (userResponse.error) {
-        throw Error(`User search failed: ${userResponse.error.message}.`)
+        throw new Error(`User search failed: ${userResponse.error.message}.`)
     }
     if (userResponse.data[0]) {
         userId = userResponse.data[0].id
@@ -44,7 +44,7 @@ async function createUser(email: string, customerName: string, client: CtlxClien
         body: body,
     });
     if (user.error) {
-        throw Error(`User creation failed: ${user.error.message}`);
+        throw new Error(`User creation failed: ${user.error.message}`);
     }
     return user.data.id
 }
@@ -72,7 +72,7 @@ async function updateUser(userId: string, customerName: string, client: CtlxClie
         body: body
     })
     if (user.error) {
-        throw Error(`User updation failed: ${user.error.message}`);
+        throw new   Error(`User updation failed: ${user.error.message}`);
     }
     return user.data.id;
 }
