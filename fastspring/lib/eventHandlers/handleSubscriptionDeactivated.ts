@@ -28,7 +28,7 @@ export async function handleSubscriptionDeactivated(
     return {
       message: "License deleted successfully.",
       data: { licenseId: licenseId },
-      status: 204,
+      status: 200,
     };
   } else {
     throw Error(
