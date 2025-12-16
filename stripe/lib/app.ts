@@ -42,7 +42,7 @@ app.post('/v1', async (context) => {
 
         const signature = context.req.header('stripe-signature');
         if (!signature) {
-            throw new Error('No stripe-signature header was found.')
+            throw new Error('No stripe-signature header was found.');
         }
         const body = await context.req.text();
         // Verify event to be sent by Stripe.

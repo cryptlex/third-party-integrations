@@ -1,14 +1,23 @@
 export function getCustomAttributes(item: any) {
-    const customAttributes = item.attributes;
-    const productId = customAttributes?.cryptlex_product_id;
-    const licenseTemplateId = customAttributes?.cryptlex_license_template_id;
-    const subscriptionInterval = customAttributes?.cryptlex_license_subscription_interval;
-    const mappingsQuantity = customAttributes?.cryptlex_mappings_quantity;
-    const isBundle = customAttributes?.is_bundle === "true";
-    if ((productId && licenseTemplateId) || (isBundle)) {
-        return { productId, licenseTemplateId, subscriptionInterval, mappingsQuantity, isBundle };
-    }
-    throw new Error(`Attribute type does not conform to the required type for custom attribute of product: ${item.product} `);
+  const customAttributes = item.attributes;
+  const productId = customAttributes?.cryptlex_product_id;
+  const licenseTemplateId = customAttributes?.cryptlex_license_template_id;
+  const subscriptionInterval =
+    customAttributes?.cryptlex_license_subscription_interval;
+  const mappingsQuantity = customAttributes?.cryptlex_mappings_quantity;
+  const isBundle = customAttributes?.is_bundle === "true";
+  if ((productId && licenseTemplateId) || isBundle) {
+    return {
+      productId,
+      licenseTemplateId,
+      subscriptionInterval,
+      mappingsQuantity,
+      isBundle,
+    };
+  }
+  throw new Error(
+    `Attribute type does not conform to the required type for custom attribute of product: ${item.product} `
+  );
 }
 
 export const SUBSCRIPTION_ID_METADATA_KEY = "fastspring_subscription_id";
