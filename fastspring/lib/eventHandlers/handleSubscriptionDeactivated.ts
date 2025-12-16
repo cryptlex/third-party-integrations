@@ -32,7 +32,8 @@ export async function handleSubscriptionDeactivated(
  
     return {
       message: "License deleted successfully.",
-      status: 204
+      data: { licenseIds: licenses.map((license) => license.id) },
+      status: 200,
     };
   } else {
     throw new Error(
