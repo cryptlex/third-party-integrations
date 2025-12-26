@@ -32,6 +32,7 @@ export async function handleSubscriptionChargeCompleted(
         });
         requests.push(renewalRequest);
         if (license?.suspended) {
+          // unsuspend the license if it is suspended 
           const unsuspensionRequest = await client.PATCH("/v3/licenses/{id}", {
             params: {
               path: {
@@ -42,7 +43,6 @@ export async function handleSubscriptionChargeCompleted(
               suspended: false,
             },
           });
-          requests.push(unsuspensionRequest);
         }
       }
       await Promise.all(
@@ -52,13 +52,13 @@ export async function handleSubscriptionChargeCompleted(
         })
       );
       return {
-        message: "License(s) renewed and unsuspended successfully.",
+        message: "License(s) renewed successfully.",
         data: { responses: responses },
         status: 200,
       };
     } catch (error) {
       throw new Error(
-        `Could not process the subscription.charge.completed webhook event with Id ${subscriptionChargeCompletedEvent.id}. ${responses ? `Licenses renewed: ${responses.map((response: any) => response.id).join(", ")}` : "No License renewed"} `
+        `Could not process the subscription.charge.completed webhook event with Id ${subscriptionChargeCompletedEvent.id}. ${responses.length  ? `Licenses renewed: ${responses.map((response: any) => response.id).join(", ")}` : "No License renewed"} `
       );
     }
   } else {

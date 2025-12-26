@@ -47,7 +47,7 @@ export async function getLicensesBySubscriptionId(client:CtlxClientType,subscrip
  * @param licenseTemplateId
  * @returns The license template object or throws error if not found.
  */
-export async function getLicenseTemplate(client: CtlxClientType, licenseTemplateId: string): Promise<any> {
+export async function getLicenseTemplate(client: CtlxClientType, licenseTemplateId: string): Promise<components["schemas"]["LicensePolicyDto"]> {
     const response = await client.GET("/v3/license-templates/{id}", {
         params: {
             path: { id: licenseTemplateId }
