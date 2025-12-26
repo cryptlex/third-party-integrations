@@ -187,7 +187,7 @@ export async function handleOrderCreated(
     } catch (error) {
       throw new Error(
         `Could not process the order.completed webhook event with Id ${orderCompletedEvent.id}. ${userId ? `User ID: ${userId} created` : "User ID not created"}.
-       ${licenses ? `Licenses created: ${licenses.map((license: any) => license.id).join(", ")}` : "No License  created"} `
+       ${licenses.length ? `Licenses created: ${licenses.map((license: any) => license.id).join(", ")}` : "No License created"} `
       );
     }
   } else {
