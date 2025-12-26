@@ -27,13 +27,13 @@ app.post("/v1", async (context) => {
     const { CRYPTLEX_ACCESS_TOKEN, CRYPTLEX_WEB_API_BASE_URL, FASTSPRING_WEBHOOK_SECRET } = env(context);
 
     if (typeof (CRYPTLEX_ACCESS_TOKEN) !== 'string') {
-      throw Error('CRYPTLEX_ACCESS_TOKEN was not found in environment variables.');
+      throw new Error('CRYPTLEX_ACCESS_TOKEN was not found in environment variables.');
     }
     if (typeof (CRYPTLEX_WEB_API_BASE_URL) !== 'string') {
-      throw Error('API_BASE_URL was not found in environment variables.');
+      throw new Error('API_BASE_URL was not found in environment variables.');
     }
     if (typeof (FASTSPRING_WEBHOOK_SECRET) !== 'string') {
-      throw Error('FASTSPRING_WEBHOOK_SECRET was not found in environment variables.');
+      throw new Error('FASTSPRING_WEBHOOK_SECRET was not found in environment variables.');
     }
 
     const CtlxClient = createClient<paths>({
@@ -45,13 +45,13 @@ app.post("/v1", async (context) => {
     const fsSignature = context.req.header('x-fs-signature'); 
     if (!fsSignature)
     {
-      throw Error('No x-fs-signature header was found.')
+      throw new Error('No x-fs-signature header was found.')
     }
 
     const rawbody = await context.req.text();
     if (  !isValidSignature(rawbody, fsSignature, FASTSPRING_WEBHOOK_SECRET))
     {
-      throw Error('The payload is tampered')
+      throw new Error('The payload is tampered')
     }
 
   
@@ -73,7 +73,7 @@ app.post("/v1", async (context) => {
         result = await handleSubscriptionDeactivated(CtlxClient, event);
         return context.json(result, result.status);
       default:
-        throw Error(`Webhook with event type ${event.type} is not supported.`);
+        throw new Error(`Webhook with event type ${event.type} is not supported.`);
     }
   } catch (error) {
     console.error(error);

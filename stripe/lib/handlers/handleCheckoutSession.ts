@@ -10,7 +10,7 @@ export async function handleCheckoutSessionFlow({ event, productId, client }: { 
     const email = event.data.object.customer_email ?? event.data.object.customer_details?.email;
     const checkoutSessionId = event.data.object.id;
     if (!email) {
-        throw Error(`Customer email not found in checkout session ${checkoutSessionId}.`);
+        throw new Error(`Customer email not found in checkout session ${checkoutSessionId}.`);
     }
     const userName = event.data.object.customer_details?.name ?? `Stripe Checkout ${checkoutSessionId}`;
     const userId = await insertUser(email, userName, client);

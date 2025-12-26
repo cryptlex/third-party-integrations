@@ -1,7 +1,6 @@
-
 import { CtlxClientType } from "@shared-utils/client.js";
 import { HandlerReturn } from "@shared-utils/index.js";
-import { getLicenseId } from "@shared-utils/licenseActions.js";
+import { getLicensesBySubscriptionId } from "@shared-utils/licenseActions.js";
 import { SUBSCRIPTION_ID_METADATA_KEY } from "../utils/getCustomAttributes.js";
 
 export async function handleSubscriptionDeactivated(
@@ -9,30 +8,46 @@ export async function handleSubscriptionDeactivated(
   subscriptionDeactivatedEvent: any
 ): HandlerReturn {
   const subscriptionDeactivatedData = subscriptionDeactivatedEvent.data;
+  const requests: any[] = [];
   // Logic to delete a license
   if (subscriptionDeactivatedData.state == "deactivated") {
-    const subscriptionId = subscriptionDeactivatedData.id;
-    const licenseId = await getLicenseId(client, subscriptionId, SUBSCRIPTION_ID_METADATA_KEY);
-    const license = await client.DELETE(`/v3/licenses/{id}`, {
-      params: {
-        path: {
-          id: licenseId,
-        },
-      },
-    });
-    if (license.error) {
-      throw Error(
-        `Deletion of license with licenseId: ${licenseId} failed with error: ${license.error.code} ${license.error.message}.`
+    try {
+      const subscriptionId = subscriptionDeactivatedData.id;
+      const licenses = await getLicensesBySubscriptionId(
+        client,
+        subscriptionId,
+        SUBSCRIPTION_ID_METADATA_KEY
+      );
+      for (const license of licenses) {
+        const licenseId = license.id;
+        const request = client.DELETE(`/v3/licenses/{id}`, {
+          params: {
+            path: {
+              id: licenseId,
+            },
+          },
+        });
+        requests.push(request);
+      }
+      await Promise.all(
+        requests.map(async (request) => {
+          await request;
+        })
+      );
+
+      return {
+        message: "License deleted successfully.",
+        data: { licenseIds: licenses.map((license) => license.id) },
+        status: 200,
+      };
+    } catch (error) {
+      throw new Error(
+        `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}. All licenses were not deleted`
       );
     }
-    return {
-      message: "License deleted successfully.",
-      data: { licenseId: licenseId },
-      status: 200,
-    };
   } else {
-    throw Error(
-      `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id} `
+    throw new Error(
+      `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}.`
     );
   }
 }

@@ -7,7 +7,7 @@ To run this application, you must set the following environment variables in you
 
 - **FASTSPRING_WEBHOOK_SECRET**: Your Fastspring secret, used to verify the authenticity of incoming Fastspring events.
 - **CRYPTLEX_WEB_API_BASE_URL**: The base URL of the Cryptlex Web API.
-- **CRYPTLEX_ACCESS_TOKEN**: A valid Cryptlex API access token with the `license:read`, `license:write`, `user:read`, `user:write` permissions; used to authenticate requests to the Cryptlex API.
+- **CRYPTLEX_ACCESS_TOKEN**: A valid Cryptlex API access token with the `license:read`, `license:write`, `user:read`, `user:write`, `licenseTemplate:read (required only if subscription add-ons are to be supported)` permissions; used to authenticate requests to the Cryptlex API.
 
 ## Installation & Usage
 This project provides two preconfigured deployment targets based on your runtime environment:
