@@ -33,7 +33,7 @@ export async function handleSubscriptionChargeCompleted(
         requests.push(renewalRequest);
         if (license?.suspended) {
           // unsuspend the license if it is suspended 
-          const unsuspensionRequest = await client.PATCH("/v3/licenses/{id}", {
+          await client.PATCH("/v3/licenses/{id}", {
             params: {
               path: {
                 id: license.id,
