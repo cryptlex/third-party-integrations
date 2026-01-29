@@ -58,12 +58,14 @@ export async function handleSubscriptionChargeCompleted(
       };
     } catch (error) {
       throw new Error(
-        `Could not process the subscription.charge.completed webhook event with Id ${subscriptionChargeCompletedEvent.id}. ${responses.length  ? `Licenses renewed: ${responses.map((response: any) => response.id).join(", ")}` : "No License renewed"} `
+        `Could not process the subscription.charge.completed webhook event with Id ${subscriptionChargeCompletedEvent.id}. ${responses.length  ? `Licenses renewed: ${responses.map((response: any) => response.id).join(", ")}` : "No License renewed"}.
+        Failure reason: ${error} `
       );
     }
   } else {
     throw new Error(
-      `Could not process the subscription.charge.completed webhook event with Id ${subscriptionChargeCompletedEvent.id}.`
+      `Could not process the subscription.charge.completed webhook event with Id ${subscriptionChargeCompletedEvent.id}.
+      Subscription charge was not completed.`
     );
   }
 }

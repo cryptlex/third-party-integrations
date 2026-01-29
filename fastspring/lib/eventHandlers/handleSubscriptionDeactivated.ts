@@ -42,12 +42,14 @@ export async function handleSubscriptionDeactivated(
       };
     } catch (error) {
       throw new Error(
-        `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}. All licenses were not deleted`
+        `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}. All licenses were not deleted.
+        Failure reason: ${error} `
       );
     }
   } else {
     throw new Error(
-      `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}.`
+      `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}.
+      Subscription was not deactivated.`
     );
   }
 }
