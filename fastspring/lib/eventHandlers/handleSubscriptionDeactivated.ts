@@ -41,13 +41,16 @@ export async function handleSubscriptionDeactivated(
         status: 200,
       };
     } catch (error) {
+      const reason =
+        error instanceof Error ? error.message : String(error);
       throw new Error(
-        `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}. All licenses were not deleted`
+        `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}. Failed to delete all licenses.. Failure reason: ${reason}`
       );
     }
   } else {
     throw new Error(
-      `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}.`
+      `Could not process the subscription.deactivated webhook event with Id ${subscriptionDeactivatedEvent.id}.
+      Subscription was not deactivated.`
     );
   }
 }

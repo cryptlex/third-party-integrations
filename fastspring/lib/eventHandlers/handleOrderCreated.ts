@@ -185,14 +185,16 @@ export async function handleOrderCreated(
         status: 201,
       };
     } catch (error) {
+      const reason =
+        error instanceof Error ? error.message : String(error);
       throw new Error(
-        `Could not process the order.completed webhook event with Id ${orderCompletedEvent.id}. ${userId ? `User ID: ${userId} created` : "User ID not created"}.
-       ${licenses.length ? `Licenses created: ${licenses.map((license: any) => license.id).join(", ")}` : "No License created"} `
+        `Could not process the order.completed webhook event with Id ${orderCompletedEvent.id}. ${userId ? `User ID: ${userId} created` : "User ID not created"}. ${licenses.length ? `Licenses created: ${licenses.map((license: any) => license.id).join(", ")}` : "No License created"}. Failure reason: ${reason}`
       );
     }
   } else {
     throw new Error(
-      `Could not process the order.completed webhook event with Id ${orderCompletedEvent.id}.`
+      `Could not process the order.completed webhook event with Id ${orderCompletedEvent.id}.
+      Order was not completed.`
     );
   }
 }
