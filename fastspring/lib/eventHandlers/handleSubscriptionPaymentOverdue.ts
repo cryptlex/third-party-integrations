@@ -44,10 +44,10 @@ export async function handleSubscriptionPaymentOverdue(
         status: 200,
       };
     } catch (error) {
+      const reason =
+        error instanceof Error ? error.message : String(error);
       throw new Error(
-        `Could not process the subscription.payment.overdue webhook event with Id ${paymentOverdueEvent.id}.
-         ${responses.length ? `Licenses suspended: ${responses.map((response: any) => response.id).join(", ")}` : "No License suspended"}.
-         Failure reason: ${error} `
+        `Could not process the subscription.payment.overdue webhook event with Id ${paymentOverdueEvent.id}. ${responses.length ? `Licenses suspended: ${responses.map((response: any) => response.id).join(", ")}` : "No License suspended"}. Failure reason: ${reason}`
       );
     }
   } else {

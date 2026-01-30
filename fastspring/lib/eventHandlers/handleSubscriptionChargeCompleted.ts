@@ -57,9 +57,10 @@ export async function handleSubscriptionChargeCompleted(
         status: 200,
       };
     } catch (error) {
+      const reason =
+        error instanceof Error ? error.message : String(error);
       throw new Error(
-        `Could not process the subscription.charge.completed webhook event with Id ${subscriptionChargeCompletedEvent.id}. ${responses.length  ? `Licenses renewed: ${responses.map((response: any) => response.id).join(", ")}` : "No License renewed"}.
-        Failure reason: ${error} `
+        `Could not process the subscription.charge.completed webhook event with Id ${subscriptionChargeCompletedEvent.id}. ${responses.length ? `Licenses renewed: ${responses.map((response: any) => response.id).join(", ")}` : "No License renewed"}. Failure reason: ${reason}`
       );
     }
   } else {
