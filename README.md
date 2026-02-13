@@ -4,7 +4,7 @@ This repository contains the integration details for the following payment platf
 
 - **Stripe**
 - **FastSpring**
--- **Paddle**
+- **Paddle**
 
 Each payment platform integration is encapsulated in a dedicated module, providing comprehensive setup instructions, configuration details, and a list of supported webhook events.
 

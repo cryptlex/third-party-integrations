@@ -1,23 +1,5 @@
 import { TransactionLineItemNotification } from "@paddle/paddle-node-sdk";
 
-/**
- * Paddle transaction line item product shape (custom_data for Cryptlex mapping).
- */
-export type PaddleItemProduct = {
-  id: string;
-  name?: string;
-  custom_data?: {
-    cryptlex_productId?: string;
-    cryptlex_licenseTemplateId?: string;
-  };
-};
-
-export type PaddleTransactionItem = {
-  product: PaddleItemProduct;
-  price_id: string;
-  quantity: number;
-};
-
 export type PaddleItemCustomData = {
   productId: string;
   licenseTemplateId: string;

@@ -12,7 +12,6 @@ import {
 } from "../utils/constants";
 import {
   getPaddleItemCustomData,
-  type PaddleTransactionItem,
 } from "../utils/getPaddleItemCustomData";
 import {
   Interval,
@@ -20,15 +19,6 @@ import {
   TransactionNotification,
   TransactionOrigin,
 } from "@paddle/paddle-node-sdk";
-
-export type TransactionCompletedData = {
-  id: string;
-  origin: string;
-  subscription_id: string | null;
-  customer_id: string | null;
-  items: PaddleTransactionItem[];
-  billing_period?: { starts_at: string; ends_at: string } | null;
-};
 
 async function handleNewLicense(
   client: CtlxClientType,
@@ -86,7 +76,7 @@ async function handleNewLicense(
           {
             key: PADDLE_SUBSCRIPTION_ID_METADATA_KEY,
             value: subscriptionId,
-            viewPermissions: [] as [],
+            viewPermissions: [],
           },
         ];
       } else {
@@ -94,7 +84,7 @@ async function handleNewLicense(
           {
             key: PADDLE_TRANSACTION_ID_METADATA_KEY,
             value: data.id,
-            viewPermissions: [] as [],
+            viewPermissions: [],
           },
         ];
       }
@@ -154,10 +144,14 @@ async function handleRecurringRenewal(
       if (license.suspended) {
         // handling this here as paddle docs say resume transaction has origin subscription-update
         // but in practice it has origin subscription-recurring as well so we need to handle both cases
-        await client.PATCH("/v3/licenses/{id}", {
+        const response = await client.PATCH("/v3/licenses/{id}", {
           params: { path: { id: license.id } },
           body: { suspended: false },
         });
+        if (response.error) {
+          console.error(response.error);
+          throw new Error(response.error.message);
+        }
         if (nextBilledAt) {
           requests.push(
             client.PATCH("/v3/licenses/{id}/expires-at", {
@@ -224,10 +218,14 @@ async function handleSubscriptionResume(
     const perLicensePromises: Promise<unknown>[] = [];
     for (const license of licenses) {
       if (!license.suspended) continue;
-      await client.PATCH("/v3/licenses/{id}", {
+      const response = await client.PATCH("/v3/licenses/{id}", {
         params: { path: { id: license.id } },
         body: { suspended: false },
       });
+      if (response.error) {
+        console.error(response.error);
+        throw new Error(response.error.message);
+      }
       if (nextBilledAt) {
         perLicensePromises.push(
           client.PATCH("/v3/licenses/{id}/expires-at", {
