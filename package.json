@@ -1,20 +1,24 @@
 {
   "name": "@cryptlex/payment-platform-integrations",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Hono server for creating Cryptlex Users and Licenses based on events send by the corresponding payment platforms",
   "main": "index.js",
   "scripts": {
     "build:stripe:node": "tsc && esbuild ./stripe/index.node.ts --bundle --platform=node --target=node22 --outdir=./dist --allow-overwrite",
     "build:stripe:aws": "tsc && esbuild ./stripe/index.aws.ts --bundle --outfile=./dist/index.js --platform=node --target=node22 --allow-overwrite",
-    "generate:mock-server": "msw-auto-mock https://api.dev.cryptlex.com/api-docs/v3/swagger.json -c 200,201,204 -o ./mock-server",
+    "generate:mock-server": "msw-auto-mock https://api.dev.cryptlex.co/api-docs/v3/swagger.json -c 200,201,204 -o ./mock-server",
     "build:fastspring:node": "tsc && esbuild ./fastspring/index.node.ts --bundle --platform=node --target=node22 --outdir=./dist --allow-overwrite",
     "build:fastspring:aws": "tsc && esbuild ./fastspring/index.aws.ts --bundle --outfile=./dist/index.js --platform=node --target=node22 --allow-overwrite",
     "test:stripe": "vitest stripe/test",
-    "test:fastspring": "vitest fastspring/test"
+    "test:fastspring": "vitest fastspring/test",
+    "build:paddle:node": "tsc && esbuild ./paddle/index.node.ts --bundle --platform=node --target=node22 --outdir=./dist --allow-overwrite",
+    "build:paddle:aws": "tsc && esbuild ./paddle/index.aws.ts --bundle --outfile=./dist/index.js --platform=node --target=node22 --allow-overwrite",
+    "test:paddle": "vitest paddle/tests"
   },
   "license": "MIT",
   "dependencies": {
     "@hono/node-server": "1.19.7",
+    "@paddle/paddle-node-sdk": "^3.6.0",
     "hono": "4.10.8",
     "nanoid": "5.1.6",
     "openapi-fetch": "0.15.0"
@@ -27,6 +31,7 @@
     "msw-auto-mock": "^0.31.0",
     "stripe": "17.4.0",
     "typescript": "5.9.3",
+    "vite": "^6.0.0",
     "vitest": "^4.0.15"
   }
 }
