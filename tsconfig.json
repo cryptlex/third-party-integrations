@@ -22,6 +22,6 @@
       "@shared-utils/*": ["utils/*"]
     }
   },
-  "include": ["stripe/index.node.ts","fastspring/index.node.ts", "src/**/*.ts"],
+  "include": ["stripe/index.node.ts","fastspring/index.node.ts", "paddle/index.node.ts", "src/**/*.ts"],
   "extends": "@tsconfig/strictest/tsconfig.json"
 }

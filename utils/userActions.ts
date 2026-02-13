@@ -20,7 +20,14 @@ async function checkUserExists(email: string, client: CtlxClientType) {
     return userId
 }
 
-async function createUser(email: string, customerName: string, client: CtlxClientType, lastName?: string, company?: string) {
+export async function createUser(
+    email: string,
+    customerName: string,
+    client: CtlxClientType,
+    lastName?: string,
+    company?: string,
+    metadata?: Array<{ key: string; value: string; viewPermissions?: [] }> | null
+) {
     const body: {
         email: string;
         firstName: string;
@@ -28,6 +35,7 @@ async function createUser(email: string, customerName: string, client: CtlxClien
         role: string;
         lastName?: string;
         company?: string;
+        metadata?: Array<{ key: string; value: string; viewPermissions?: [] }>;
     } = {
         email: email,
         firstName: customerName,
@@ -40,6 +48,9 @@ async function createUser(email: string, customerName: string, client: CtlxClien
     if (company !== undefined && company !== null) {
         body.company = company;
     }
+    if (metadata !== undefined && metadata !== null && metadata.length > 0) {
+        body.metadata = metadata;
+    }
     const user = await client.POST('/v3/users', {
         body: body,
     });
@@ -49,19 +60,31 @@ async function createUser(email: string, customerName: string, client: CtlxClien
     return user.data.id
 }
 
-async function updateUser(userId: string, customerName: string, client: CtlxClientType, lastName?: string, company?: string) {
+export async function updateUser(
+    userId: string,
+    customerName: string,
+    client: CtlxClientType,
+    lastName?: string,
+    company?: string,
+    email?: string | null
+) {
     const body: {
-        firstName: string;
+        firstName?: string;
         lastName?: string;
         company?: string;
-    } = {
-        firstName: customerName
-    };
+        email?: string;
+    } = {};
+    if (customerName !== undefined && customerName !== null && customerName !== '') {
+        body.firstName = customerName;
+    }
     if (lastName !== undefined && lastName !== null) {
         body.lastName = lastName;
     }
     if (company !== undefined && company !== null) {
         body.company = company;
+    }
+    if (email !== undefined && email !== null && email !== '') {
+        body.email = email;
     }
     const user = await client.PATCH(`/v3/users/{id}`, {
         params: {
