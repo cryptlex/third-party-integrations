@@ -77,9 +77,11 @@ export async function findOrCreateUpdateUserForPaddleCustomer(
   name: string | null
 ): Promise<string> {
   const userId = await getUserIdByPaddleCustomerId(client, paddleCustomerId);
+  let firstName = name?.split(' ')[0];
+  let lastName = name?.split(' ')[1];
   if (userId) {
-    if (email || (name != null && name !== '')) {
-      await updateUser(userId, name ?? '', client, name ?? undefined, undefined, email);
+    if (email || firstName) {
+      await updateUser(userId, firstName ?? paddleCustomerId, client, lastName , undefined, email);
     }
     return userId;
   }
@@ -88,9 +90,9 @@ export async function findOrCreateUpdateUserForPaddleCustomer(
   ];
   return createUser(
     email,
-    name ?? paddleCustomerId,
+    firstName ?? paddleCustomerId,
     client,
-    name != null && name !== '' ? name : undefined,
+    lastName,
     undefined,
     metadata
   );

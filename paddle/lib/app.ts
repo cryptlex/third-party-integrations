@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-// import { env } from 'hono/adapter';
 import { CustomerCreatedEvent, EventEntity, Paddle, SubscriptionPausedEvent, TransactionCompletedEvent } from '@paddle/paddle-node-sdk';
 import createClient from 'openapi-fetch';
 import { paths } from '@cryptlex/web-api-types/production';
