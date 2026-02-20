@@ -104,8 +104,8 @@ test('transaction.completed origin web: creates user and licenses', async () => 
           product: {
             id: 'prod_01',
             customData: {
-              cryptlex_productId: 'prod_clx',
-              cryptlex_licenseTemplateId: 'tpl_clx',
+              cryptlex_product_id: 'prod_clx',
+              cryptlex_license_template_id: 'tpl_clx',
             },
             name: '',
             type: null,
