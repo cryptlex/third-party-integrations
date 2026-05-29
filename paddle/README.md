@@ -1,6 +1,6 @@
 # Paddle integration
 
-A lightweight server application designed to handle `transaction.completed`, `subscription.paused`, and `customer.created` events from Paddle. Upon receiving these webhooks, the server will automatically create, renew, suspend, resume licenses in Cryptlex, ensuring a seamless integration between Paddle payments and Cryptlex licenses. Webhook payloads are verified using the Paddle SDK (`paddle.webhooks.unmarshal`); no Paddle API key is required.
+A lightweight server application designed to handle `transaction.completed`, `subscription.paused`, `subscription.canceled` and `customer.created` events from Paddle. Upon receiving these webhooks, the server will automatically creates, renews, suspends, resumes and revokes licenses in Cryptlex, ensuring a seamless integration between Paddle payments and Cryptlex licenses. Webhook payloads are verified using the Paddle SDK (`paddle.webhooks.unmarshal`); no Paddle API key is required.
 
 ## Requirements
 
