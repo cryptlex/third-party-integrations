@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { CustomerCreatedEvent, EventEntity, Paddle, SubscriptionPausedEvent, TransactionCompletedEvent } from '@paddle/paddle-node-sdk';
+import { CustomerCreatedEvent, EventEntity, Paddle, SubscriptionCanceledEvent, SubscriptionPausedEvent, TransactionCompletedEvent } from '@paddle/paddle-node-sdk';
 import createClient from 'openapi-fetch';
 import { paths } from '@cryptlex/web-api-types/production';
 import { getAuthMiddleware } from '@shared-utils/client';
@@ -7,6 +7,7 @@ import { handleTransactionCompleted } from './handlers/handleTransactionComplete
 import { handleSubscriptionPaused } from './handlers/handleSubscriptionPaused';
 import { handleCustomerCreated } from './handlers/handleCustomerCreated';
 import { env } from 'hono/adapter';
+import { handleSubscriptionCanceled } from './handlers/handleSubscriptionCanceled';
 
 const paddle = new Paddle('');
 
@@ -60,6 +61,9 @@ app.post('/v1', async (context) => {
         return context.json(result, result.status);
       case 'customer.created':
         result = await handleCustomerCreated(CtlxClient, eventData as CustomerCreatedEvent);
+        return context.json(result, result.status);
+      case 'subscription.canceled':
+        result = await handleSubscriptionCanceled(CtlxClient, eventData as SubscriptionCanceledEvent);
         return context.json(result, result.status);
       default:
         throw new Error(`Webhook with event type ${eventType} is not supported.`);
