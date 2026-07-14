@@ -6,7 +6,7 @@ import { insertUser } from "@shared-utils/userActions";
 
 /**  Find the license carrying the subscription ID in its metadata and renew its expiry. */
 async function renewLicenseBySubscriptionId({ client, subscriptionId, productId }: { client: CtlxClientType, subscriptionId: string, productId?: string }): HandlerReturn {
-    const licenses = await client.GET('/v3/licenses', {
+    const {data,error} = await client.GET('/v3/licenses', {
         params: {
             query: {
                 ...(productId ? { "productId": { eq: productId } } : {}),
@@ -19,8 +19,13 @@ async function renewLicenseBySubscriptionId({ client, subscriptionId, productId 
             }
         }
     });
+    if (error) {
+      throw new Error(
+        `While attempting to retrieve license: ${error.message}`,
+      );
+    }
 
-    const licenseId = licenses.data?.[0]?.id;
+    const licenseId = data?.[0]?.id;
 
     if (!licenseId) {
         throw new Error(`While attempting to renew license, no license with ${subscriptionId} value in the metadata key ${SUBSCRIPTION_ID_KEY} was found.`)
@@ -33,6 +38,9 @@ async function renewLicenseBySubscriptionId({ client, subscriptionId, productId 
             }
         }
     });
+    if (license.error) {
+        throw new Error(`Error while attempting to renew license: ${license.error.message}`);
+    }
 
     return ({ data: { license: license.data }, message: `License renewed with new expiry date set to: ${license.data?.expiresAt}`, status: 201 });
 }

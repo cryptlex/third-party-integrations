@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { Stripe } from 'stripe';
 import { env } from 'hono/adapter';
-import { handleInvoicePaid,handleInvoicePaidV2 } from './handlers/handleInvoicePaid';
+import { handleInvoicePaid ,handleInvoicePaidV2 } from './handlers/handleInvoicePaid';
 import { handleCheckoutSessionFlow ,handleCheckoutSessionFlowV2} from './handlers/handleCheckoutSession';
 import { handleCustomerCreated } from './handlers/handleCustomerCreated';
 import createClient from 'openapi-fetch';

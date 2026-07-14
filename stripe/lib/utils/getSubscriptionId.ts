@@ -14,6 +14,6 @@ export function getSubscriptionId(subscription: Stripe.Subscription | string | n
     }
 }
 
-/** License Metadata Key in which subcription_id is stored  */
+/** License Metadata Key in which subscription_id is stored  */
 export const SUBSCRIPTION_ID_KEY = 'stripe_subscription_id';
 export const SUBSCRIPTION_ID_EMPTY = 'subscription_empty';
