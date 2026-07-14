@@ -1,11 +1,9 @@
 import Stripe from "stripe";
 
 /**
- * Helper to get Subscription ID from Stripe.Invoice
- * @param invoice 
- * @returns 
+ * Helper to get Subscription ID
  */
-export function getSubscriptionId(subscription: Stripe.Subscription | string | null): string {
+export function getSubscriptionId(subscription: Stripe.Subscription | string | null | undefined): string {
     if (subscription && typeof subscription === 'string') {
         return subscription;
     }
@@ -17,5 +15,5 @@ export function getSubscriptionId(subscription: Stripe.Subscription | string | n
 }
 
 /** License Metadata Key in which subcription_id is stored  */
-export const SUBCRIPTION_ID_KEY = 'stripe_subscription_id';
+export const SUBSCRIPTION_ID_KEY = 'stripe_subscription_id';
 export const SUBSCRIPTION_ID_EMPTY = 'subscription_empty';

@@ -1,33 +1,41 @@
 import Stripe from "stripe";
-import { getSubscriptionId, SUBCRIPTION_ID_KEY } from "../utils/getSubscriptionId";
+import { getSubscriptionId, SUBSCRIPTION_ID_KEY } from "../utils/getSubscriptionId";
 import { CtlxClientType } from "@shared-utils/client";
 import { HandlerReturn } from "@shared-utils/index";
 import { createLicense } from "@shared-utils/licenseActions";
 import { insertUser } from "@shared-utils/userActions";
+import { getLicenseParamsFromMetadata } from "../utils/getLicenseParamsFromMetadata";
 
+/** Create the Cryptlex user from the checkout session and issue a license. */
+async function createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId }: { event: Stripe.CheckoutSessionCompletedEvent, client: CtlxClientType, productId: string, licenseTemplateId?: string }): HandlerReturn {
+    const session = event.data.object;
+    const email = session.customer_email ?? session.customer_details?.email;
+    if (!email) {
+        throw new Error(`Customer email not found in checkout session ${session.id}.`);
+    }
+    const userName = session.customer_details?.name ?? `Stripe Checkout ${session.id}`;
+    const userId = await insertUser(email, userName, client);
+    const subscriptionId = getSubscriptionId(session.subscription);
+
+    return await createLicense(client, {
+        productId,
+        licenseTemplateId,
+        userId,
+        metadata: [
+            {
+                key: SUBSCRIPTION_ID_KEY,
+                value: subscriptionId,
+                viewPermissions: []
+            }
+        ]
+    });
+}
 
 export async function handleCheckoutSessionFlow({ event, productId, client }: { event: Stripe.CheckoutSessionCompletedEvent, productId: string, client: CtlxClientType }): HandlerReturn {
-    const email = event.data.object.customer_email ?? event.data.object.customer_details?.email;
-    const checkoutSessionId = event.data.object.id;
-    if (!email) {
-        throw new Error(`Customer email not found in checkout session ${checkoutSessionId}.`);
-    }
-    const userName = event.data.object.customer_details?.name ?? `Stripe Checkout ${checkoutSessionId}`;
-    const userId = await insertUser(email, userName, client);
-    const subscriptionId = getSubscriptionId(event.data.object.subscription);
+    return createLicenseFromCheckoutSession({ event, client, productId });
+}
 
-    const body =  {
-            productId: productId,
-            userId: userId,
-            metadata: [
-                {
-                    key: SUBCRIPTION_ID_KEY,
-                    value: subscriptionId,
-                    viewPermissions: []
-                },
-
-            ]
-        }
-
-   return await createLicense(client,body)
+export async function handleCheckoutSessionFlowV2({ event, client }: { event: Stripe.CheckoutSessionCompletedEvent, client: CtlxClientType }): HandlerReturn {
+    const { productId, licenseTemplateId } = getLicenseParamsFromMetadata(event.data.object.metadata);
+    return createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId });
 }
