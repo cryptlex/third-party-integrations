@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { getSubscriptionId, SUBSCRIPTION_ID_KEY } from "../utils/getSubscriptionId";
+import { getPaymentIntentId, getSubscriptionId, SUBSCRIPTION_ID_KEY, TRANSACTION_ID_KEY } from "../utils/getSubscriptionId";
 import { CtlxClientType } from "@shared-utils/client";
 import { HandlerReturn } from "@shared-utils/index";
 import { createLicense } from "@shared-utils/licenseActions";
@@ -15,19 +15,28 @@ async function createLicenseFromCheckoutSession({ event, client, productId, lice
     }
     const userName = session.customer_details?.name ?? `Stripe Checkout ${session.id}`;
     const userId = await insertUser(email, userName, client);
-    const subscriptionId = getSubscriptionId(session.subscription);
+
+    const metadata = session.mode === "subscription"
+        ? [
+            {
+                key: SUBSCRIPTION_ID_KEY,
+                value: getSubscriptionId(session.subscription),
+                viewPermissions: []
+            }
+        ]
+        : [
+            {
+                key: TRANSACTION_ID_KEY,
+                value: getPaymentIntentId(session.payment_intent),
+                viewPermissions: []
+            }
+        ];
 
     return await createLicense(client, {
         productId,
         licenseTemplateId,
         userId,
-        metadata: [
-            {
-                key: SUBSCRIPTION_ID_KEY,
-                value: subscriptionId,
-                viewPermissions: []
-            }
-        ]
+        metadata
     });
 }
 
