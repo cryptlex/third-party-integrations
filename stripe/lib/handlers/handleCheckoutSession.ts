@@ -7,7 +7,7 @@ import { insertUser } from "@shared-utils/userActions";
 import { getLicenseParamsFromMetadata } from "../utils/getLicenseParamsFromMetadata";
 
 /** Create the Cryptlex user from the checkout session and issue a license. */
-async function createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId }: { event: Stripe.CheckoutSessionCompletedEvent, client: CtlxClientType, productId: string, licenseTemplateId?: string }): HandlerReturn {
+async function createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId, entitlementSetId }: { event: Stripe.CheckoutSessionCompletedEvent, client: CtlxClientType, productId: string, licenseTemplateId?: string, entitlementSetId?: string }): HandlerReturn {
     const session = event.data.object;
     const email = session.customer_email ?? session.customer_details?.email;
     if (!email) {
@@ -35,6 +35,7 @@ async function createLicenseFromCheckoutSession({ event, client, productId, lice
     return await createLicense(client, {
         productId,
         licenseTemplateId,
+        entitlementSetId: entitlementSetId ?? null,
         userId,
         metadata
     });
@@ -45,6 +46,6 @@ export async function handleCheckoutSessionFlow({ event, productId, client }: { 
 }
 
 export async function handleCheckoutSessionFlowV2({ event, client }: { event: Stripe.CheckoutSessionCompletedEvent, client: CtlxClientType }): HandlerReturn {
-    const { productId, licenseTemplateId } = getLicenseParamsFromMetadata(event.data.object.metadata);
-    return createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId });
+    const { productId, licenseTemplateId, entitlementSetId } = getLicenseParamsFromMetadata(event.data.object.metadata);
+    return createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId, entitlementSetId });
 }
