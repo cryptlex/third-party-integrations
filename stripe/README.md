@@ -12,8 +12,9 @@ Point your Stripe webhook to the `/v2` endpoint and add the following keys to th
 
 - **CRYPTLEX_PRODUCT_ID**: The ID of the Cryptlex product for which the license should be created.
 - **CRYPTLEX_LICENSE_TEMPLATE**: The ID of the Cryptlex license template to use when creating the license.
+- **CRYPTLEX_ENTITLEMENT_SET_ID** (optional): The ID of the Cryptlex entitlement set to attach to the license.
 
-Both keys are required — the webhook will fail if either is missing from the checkout session metadata. This allows a single deployment to issue licenses for different products and license templates based on what the customer purchased.
+`CRYPTLEX_PRODUCT_ID` and `CRYPTLEX_LICENSE_TEMPLATE` are required — the webhook will fail if either is missing from the checkout session metadata. `CRYPTLEX_ENTITLEMENT_SET_ID` is optional and is only included when present. This allows a single deployment to issue licenses for different products, license templates, and entitlement sets based on what the customer purchased.
 
 On `/v2`, license creation is handled exclusively by the `checkout.session.completed` event; the subscription's first `invoice.paid` event (billing reason `subscription_create`) is acknowledged without any action, and subsequent `invoice.paid` events (billing reason `subscription_cycle`) renew the license.
 
