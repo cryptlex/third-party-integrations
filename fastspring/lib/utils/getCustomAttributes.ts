@@ -4,6 +4,8 @@ export function getCustomAttributes(item: any) {
   const licenseTemplateId = customAttributes?.cryptlex_license_template_id;
   const subscriptionInterval =
     customAttributes?.cryptlex_license_subscription_interval;
+  const maxAllowedReleaseVersion =
+    customAttributes?.cryptlex_max_allowed_release_version;
   const mappingsQuantity = customAttributes?.cryptlex_mappings_quantity;
   const isBundle = customAttributes?.cryptlex_is_bundle === "true";
   if ((productId && licenseTemplateId) || isBundle) {
@@ -11,6 +13,7 @@ export function getCustomAttributes(item: any) {
       productId,
       licenseTemplateId,
       subscriptionInterval,
+      maxAllowedReleaseVersion,
       mappingsQuantity,
       isBundle,
     };

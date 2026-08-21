@@ -49,6 +49,7 @@ export async function handleOrderCreated(
           productId: string;
           licenseTemplateId: string;
           subscriptionInterval?: string;
+          maxAllowedReleaseVersion?: string;
           mappingsQuantity?: string;
           isBundle?: boolean;
         } = getCustomAttributes(item);
@@ -152,6 +153,9 @@ export async function handleOrderCreated(
         }
         if (subscriptionStartTrigger) {
           body.subscriptionStartTrigger = subscriptionStartTrigger;
+        }
+        if (customAttributes?.maxAllowedReleaseVersion) {
+          body.maxAllowedReleaseVersion = customAttributes.maxAllowedReleaseVersion;
         }
         if (
           customAttributes?.mappingsQuantity ===
