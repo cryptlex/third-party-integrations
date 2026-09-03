@@ -1,5 +1,5 @@
 # @cryptlex/stripe-integration
-A lightweight server application designed to handle `invoice.paid`, `checkout.session.completed`, `customer.created`, `customer.subscription.paused`, and `customer.subscription.resumed` events from Stripe. Upon receiving these webhooks, the server will automatically create, renew, suspend, or unsuspend licenses in Cryptlex, ensuring a seamless integration between Stripe payments and Cryptlex licenses.
+A lightweight server application designed to handle `invoice.paid`, `checkout.session.completed`, `customer.created`, `customer.subscription.paused`, `customer.subscription.resumed`, and `customer.subscription.deleted` events from Stripe. Upon receiving these webhooks, the server will automatically create, renew, suspend, unsuspend, revoke, or delete licenses in Cryptlex, ensuring a seamless integration between Stripe payments and Cryptlex licenses.
 
 ## Endpoints
 The application exposes two webhook endpoints:
@@ -22,13 +22,24 @@ Point your Stripe webhook to the `/v2` endpoint and add the following keys to th
 
 On `/v2`, license creation is handled exclusively by the `checkout.session.completed` event; the subscription's first `invoice.paid` event (billing reason `subscription_create`) is acknowledged without any action, and subsequent `invoice.paid` events (billing reason `subscription_cycle`) renew the license.
 
-### Subscription pause & resume
-`/v2` also handles two subscription lifecycle events:
+### Subscription lifecycle events
+`/v2` also handles three subscription lifecycle events:
 
 - **`customer.subscription.paused`**: Suspends every Cryptlex license tagged with the subscription's ID.
 - **`customer.subscription.resumed`**: Unsuspends those licenses.
+- **`customer.subscription.deleted`**: Revokes or deletes those licenses, depending on the `CRYPTLEX_CANCELLATION_ACTION` environment variable (see below).
 
-Licenses are matched using the `stripe_subscription_id` license metadata key that is set at license creation. Enable both events on your Stripe webhook if you use Stripe's subscription pause collection feature.
+Licenses are matched using the `stripe_subscription_id` license metadata key that is set at license creation. Enable the pause and resume events on your Stripe webhook if you use Stripe's subscription pause collection feature.
+
+#### Revoking vs. deleting on cancellation
+Stripe sends `customer.subscription.deleted` when a subscription is canceled. The integration reads the `CRYPTLEX_CANCELLATION_ACTION` **environment variable** to decide what to do:
+
+- **`revoke`** (default): Sets `revoked: true` on each license.
+- **`delete`**: Permanently deletes each license from Cryptlex.
+
+
+Because this is an environment variable, the choice applies to the whole deployment rather than to individual subscriptions:
+
 
 ### Assigning licenses to an organization
 Set `CRYPTLEX_LICENSE_ASSIGNEE` to `organization` in the checkout session metadata to assign the license to a Cryptlex organization instead of a user. The organization is resolved in this order:
@@ -50,6 +61,7 @@ To run this application, you must set the following environment variables in you
 - **CRYPTLEX_ACCESS_TOKEN**: A valid Cryptlex API access token used to authenticate requests to the Cryptlex API. It requires the `license:read`, `license:write`, `user:read`, and `user:write` permissions, plus `organization:read` and `organization:write` when assigning licenses to organizations.
 - **CRYPTLEX_WEB_API_BASE_URL**: The base URL of the Cryptlex Web API.
 - **CRYPTLEX_PRODUCT_ID** (only required for `/v1`): The Cryptlex Product ID corresponding to the license you want to create or renew. Not used by `/v2`, which reads the product ID from the checkout session metadata instead.
+- **CRYPTLEX_CANCELLATION_ACTION** (optional, `/v2` only): What happens to a license when its subscription is deleted — `revoke` (default) or `delete`.
 
 ## Installation & Usage
 This project provides two preconfigured deployment targets based on your runtime environment:

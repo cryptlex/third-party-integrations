@@ -4,7 +4,7 @@ import { env } from 'hono/adapter';
 import { handleInvoicePaid ,handleInvoicePaidV2 } from './handlers/handleInvoicePaid';
 import { handleCheckoutSessionFlow ,handleCheckoutSessionFlowV2} from './handlers/handleCheckoutSession';
 import { handleCustomerCreated } from './handlers/handleCustomerCreated';
-import { handleCustomerSubscriptionPaused, handleCustomerSubscriptionResumed } from './handlers/handleCustomerSubscription';
+import { handleCustomerSubscriptionDeleted, handleCustomerSubscriptionPaused, handleCustomerSubscriptionResumed, parseCancellationAction } from './handlers/handleCustomerSubscription';
 import createClient from 'openapi-fetch';
 import { paths } from '@cryptlex/web-api-types/production';
 import { getAuthMiddleware } from '@shared-utils/client';
@@ -83,7 +83,7 @@ app.post('/v2', async (context) => {
          * A mechanism is needed to protect this endpoint from attacks such as malicious third parties spoofing Stripe's webhook event objects and sending requests.
          * In this case, you can protect the API by issuing a webhook secret and verifying each request.
          */
-        const { STRIPE_WEBHOOK_SECRET, CRYPTLEX_ACCESS_TOKEN, CRYPTLEX_WEB_API_BASE_URL } = env(context);
+        const { STRIPE_WEBHOOK_SECRET, CRYPTLEX_ACCESS_TOKEN, CRYPTLEX_WEB_API_BASE_URL, CRYPTLEX_CANCELLATION_ACTION } = env(context);
 
         if (typeof (STRIPE_WEBHOOK_SECRET) !== 'string') {
             throw new Error('STRIPE_WEBHOOK_SECRET was not found in environment variables.');
@@ -130,6 +130,9 @@ app.post('/v2', async (context) => {
                 return context.json(result, result.status);
             case 'customer.subscription.resumed':
                 result = await handleCustomerSubscriptionResumed({ event: event, client: CtlxClient });
+                return context.json(result, result.status);
+            case 'customer.subscription.deleted':
+                result = await handleCustomerSubscriptionDeleted({ event: event, client: CtlxClient, cancellationAction: parseCancellationAction(CRYPTLEX_CANCELLATION_ACTION) });
                 return context.json(result, result.status);
             default:
                 throw new Error(`Webhook with event type ${event.type} is not supported.`);
