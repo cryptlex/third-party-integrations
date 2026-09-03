@@ -7,8 +7,17 @@ import { insertUser } from "@shared-utils/userActions";
 import { getLicenseParamsFromMetadata, LicenseParams } from "../utils/getLicenseParamsFromMetadata";
 import { resolveOrganizationId } from "../utils/getOrganization";
 
+type CreateLicenseFromCheckoutSessionParams = Omit<LicenseParams, "licenseTemplateId" | "allowedUsers"> & {
+    event: Stripe.CheckoutSessionCompletedEvent;
+    client: CtlxClientType;
+    /** Absent in the v1 flow, which has no license template. */
+    licenseTemplateId?: string;
+    /** Only the organization assignee needs a seat count. */
+    allowedUsers?: number;
+};
+
 /** Creates the Cryptlex user or organization for a checkout session and issues a license. */
-async function createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId, entitlementSetId, licenseAssignee, organizationId, allowedUsers, licenseKey }: { event: Stripe.CheckoutSessionCompletedEvent, client: CtlxClientType } & LicenseParams): HandlerReturn {
+async function createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId, entitlementSetId, licenseAssignee, organizationId, allowedUsers, licenseKey }: CreateLicenseFromCheckoutSessionParams): HandlerReturn {
     const session = event.data.object;
     const email = session.customer_email ?? session.customer_details?.email;
     if (!email) {
@@ -38,7 +47,7 @@ async function createLicenseFromCheckoutSession({ event, client, productId, lice
                 organizationId,
                 companyName: session.customer_details?.business_name,
                 email,
-                allowedUsers: allowedUsers,
+                allowedUsers: allowedUsers ?? 0,
                 client
             })
         }
@@ -48,7 +57,8 @@ async function createLicenseFromCheckoutSession({ event, client, productId, lice
 
     return await createLicense(client, {
         productId,
-        licenseTemplateId,
+        // Omitted in the v1 flow, which does not use license templates.
+        ...(licenseTemplateId ? { licenseTemplateId } : {}),
         entitlementSetId: entitlementSetId ?? null,
         // Omitted key lets Cryptlex auto-generate one.
         ...(licenseKey ? { key: licenseKey } : {}),
@@ -58,7 +68,7 @@ async function createLicenseFromCheckoutSession({ event, client, productId, lice
 }
 
 export async function handleCheckoutSessionFlow({ event, productId, client }: { event: Stripe.CheckoutSessionCompletedEvent, productId: string, client: CtlxClientType }): HandlerReturn {
-    return createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId: '', licenseAssignee: 'user' , allowedUsers: 0 });
+    return createLicenseFromCheckoutSession({ event, client, productId, licenseAssignee: 'user' });
 }
 
 export async function handleCheckoutSessionFlowV2({ event, client }: { event: Stripe.CheckoutSessionCompletedEvent, client: CtlxClientType }): HandlerReturn {

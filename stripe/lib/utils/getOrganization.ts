@@ -56,8 +56,9 @@ export async function resolveOrganizationId({ organizationId, companyName, email
         }
     }
 
-    const emailDomain = email.substring(email.lastIndexOf("@") + 1);
-    const candidateNames = companyName ? [companyName, emailDomain] : [emailDomain];
+    // Domains are case-insensitive, so lowercase them to avoid duplicates like "Example.com" and "example.com".
+    const emailDomain = email.substring(email.lastIndexOf("@") + 1).trim().toLowerCase();
+    const candidateNames = [companyName?.trim(), emailDomain].filter((name): name is string => !!name);
     for (const name of candidateNames) {
         const resolvedId = await insertOrganization(client, name, email, allowedUsers);
         if (resolvedId) {

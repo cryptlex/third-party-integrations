@@ -8,8 +8,10 @@ export  const   createLicense = async (client:CtlxClientType, body:any): Handler
         body,
       });
       if (license.error) {
+        // A license is assigned to either a user or an organization, so only name the one that was created.
+        const assignee = body.userId ? `User with ID ${body.userId}` : `Organization with ID ${body.organizationId}`;
         throw new Error(
-          `License creation failed with error: ${license.error.code} ${license.error.message}. User with ID ${body.userId} has been created.`
+          `License creation failed with error: ${license.error.code} ${license.error.message}. ${assignee} has been created.`
         );
       }
       return {
