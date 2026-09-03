@@ -4,6 +4,7 @@ import { env } from 'hono/adapter';
 import { handleInvoicePaid ,handleInvoicePaidV2 } from './handlers/handleInvoicePaid';
 import { handleCheckoutSessionFlow ,handleCheckoutSessionFlowV2} from './handlers/handleCheckoutSession';
 import { handleCustomerCreated } from './handlers/handleCustomerCreated';
+import { handleCustomerSubscriptionPaused, handleCustomerSubscriptionResumed } from './handlers/handleCustomerSubscription';
 import createClient from 'openapi-fetch';
 import { paths } from '@cryptlex/web-api-types/production';
 import { getAuthMiddleware } from '@shared-utils/client';
@@ -123,6 +124,12 @@ app.post('/v2', async (context) => {
                 return context.json(result, result.status);
             case 'customer.created':
                 result = await handleCustomerCreated({ event: event, client: CtlxClient });
+                return context.json(result, result.status);
+            case 'customer.subscription.paused':
+                result = await handleCustomerSubscriptionPaused({ event: event, client: CtlxClient });
+                return context.json(result, result.status);
+            case 'customer.subscription.resumed':
+                result = await handleCustomerSubscriptionResumed({ event: event, client: CtlxClient });
                 return context.json(result, result.status);
             default:
                 throw new Error(`Webhook with event type ${event.type} is not supported.`);
