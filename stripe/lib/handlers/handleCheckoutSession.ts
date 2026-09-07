@@ -5,7 +5,7 @@ import { HandlerReturn } from "@shared-utils/index";
 import { createLicense } from "@shared-utils/licenseActions";
 import { insertUser } from "@shared-utils/userActions";
 import { getLicenseParamsFromMetadata, LicenseParams } from "../utils/getLicenseParamsFromMetadata";
-import { resolveOrganizationId } from "../utils/getOrganization";
+import { insertOrganization } from "../utils/getOrganization";
 
 type CreateLicenseFromCheckoutSessionParams = Omit<LicenseParams, "licenseTemplateId" | "allowedUsers"> & {
     event: Stripe.CheckoutSessionCompletedEvent;
@@ -40,19 +40,22 @@ async function createLicenseFromCheckoutSession({ event, client, productId, lice
             }
         ];
 
+    const customerName = session.customer_details?.name ?? `Stripe Checkout ${session.id}`;
+
     // A license goes to either a user or an organization, never both.
     const assignee = licenseAssignee === "organization"
         ? {
-            organizationId: await resolveOrganizationId({
+            organizationId: await insertOrganization({
                 organizationId,
                 companyName: session.customer_details?.business_name,
                 email,
-                allowedUsers: allowedUsers ?? 0,
+                customerName,
+                allowedUsers: allowedUsers as number,
                 client
             })
         }
         : {
-            userId: await insertUser(email, session.customer_details?.name ?? `Stripe Checkout ${session.id}`, client)
+            userId: await insertUser(email, customerName, client)
         };
 
     return await createLicense(client, {

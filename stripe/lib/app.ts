@@ -83,7 +83,7 @@ app.post('/v2', async (context) => {
          * A mechanism is needed to protect this endpoint from attacks such as malicious third parties spoofing Stripe's webhook event objects and sending requests.
          * In this case, you can protect the API by issuing a webhook secret and verifying each request.
          */
-        const { STRIPE_WEBHOOK_SECRET, CRYPTLEX_ACCESS_TOKEN, CRYPTLEX_WEB_API_BASE_URL, CRYPTLEX_CANCELLATION_ACTION } = env(context);
+        const { STRIPE_WEBHOOK_SECRET, CRYPTLEX_ACCESS_TOKEN, CRYPTLEX_WEB_API_BASE_URL, CRYPTLEX_SUBSCRIPTION_CANCELLATION_ACTION } = env(context);
 
         if (typeof (STRIPE_WEBHOOK_SECRET) !== 'string') {
             throw new Error('STRIPE_WEBHOOK_SECRET was not found in environment variables.');
@@ -95,6 +95,7 @@ app.post('/v2', async (context) => {
         if (typeof (CRYPTLEX_WEB_API_BASE_URL) !== 'string') {
             throw new Error('CRYPTLEX_WEB_API_BASE_URL was not found in environment variables.');
         }
+
 
         /** Instantiate Web API client */
         const CtlxClient = createClient<paths>({ baseUrl: CRYPTLEX_WEB_API_BASE_URL });
@@ -119,21 +120,33 @@ app.post('/v2', async (context) => {
             case 'invoice.paid':
                 result = await handleInvoicePaidV2({ event: event, client: CtlxClient });
                 return context.json(result, result.status);
+
             case 'checkout.session.completed':
                 result = await handleCheckoutSessionFlowV2({ event: event, client: CtlxClient });
                 return context.json(result, result.status);
+
             case 'customer.created':
                 result = await handleCustomerCreated({ event: event, client: CtlxClient });
                 return context.json(result, result.status);
+
             case 'customer.subscription.paused':
                 result = await handleCustomerSubscriptionPaused({ event: event, client: CtlxClient });
                 return context.json(result, result.status);
+
             case 'customer.subscription.resumed':
                 result = await handleCustomerSubscriptionResumed({ event: event, client: CtlxClient });
                 return context.json(result, result.status);
+
             case 'customer.subscription.deleted':
-                result = await handleCustomerSubscriptionDeleted({ event: event, client: CtlxClient, cancellationAction: parseCancellationAction(CRYPTLEX_CANCELLATION_ACTION) });
+                result = await handleCustomerSubscriptionDeleted({
+                  event: event,
+                  client: CtlxClient,
+                  cancellationAction: parseCancellationAction(
+                    CRYPTLEX_SUBSCRIPTION_CANCELLATION_ACTION,
+                  ),
+                });
                 return context.json(result, result.status);
+                
             default:
                 throw new Error(`Webhook with event type ${event.type} is not supported.`);
         }
