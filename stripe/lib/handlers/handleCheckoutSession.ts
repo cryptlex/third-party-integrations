@@ -61,10 +61,10 @@ async function createLicenseFromCheckoutSession({ event, client, productId, lice
     return await createLicense(client, {
         productId,
         // Omitted in the v1 flow, which does not use license templates.
-        ...(licenseTemplateId ? { licenseTemplateId } : {}),
+        licenseTemplateId  : licenseTemplateId ?? null,
         entitlementSetId: entitlementSetId ?? null,
         // Omitted key lets Cryptlex auto-generate one.
-        ...(licenseKey ? { key: licenseKey } : {}),
+        key: licenseKey ?? null,
         ...assignee,
         metadata
     });
