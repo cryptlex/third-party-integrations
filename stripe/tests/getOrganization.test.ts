@@ -18,76 +18,32 @@ const params = {
     organizationId: undefined,
     companyName: "Acme Inc",
     email: "jenny@acme.com",
-    customerName: "Jenny Rosen",
     allowedUsers: 5
 };
 
-test("creating an organization also creates an organization-admin user linked to it", async () => {
-    let createdUser: any = null;
+test("a missing organization is created by name", async () => {
+    let createdOrganization: any = null;
     server.use(
         // No organization with this name yet.
         http.get(`${MswBaseUrl}/v3/organizations`, () => HttpResponse.json([])),
-        http.post(`${MswBaseUrl}/v3/organizations`, () => HttpResponse.json({ id: "org_1" }, { status: 201 })),
-        // No user with this email yet.
-        http.get(`${MswBaseUrl}/v3/users`, () => HttpResponse.json([])),
-        http.post(`${MswBaseUrl}/v3/users`, async ({ request }) => {
-            createdUser = await request.json();
-            return HttpResponse.json({ id: "user_1" }, { status: 201 });
+        http.post(`${MswBaseUrl}/v3/organizations`, async ({ request }) => {
+            createdOrganization = await request.json();
+            return HttpResponse.json({ id: "org_1" }, { status: 201 });
         })
     );
 
-    const organizationId = await insertOrganization({ ...params, client: client() });
-
-    expect(organizationId).toBe("org_1");
-    expect(createdUser).toMatchObject({
-        email: "jenny@acme.com",
-        firstName: "Jenny Rosen",
-        role: "organization-admin",
-        organizationId: "org_1"
-    });
+    expect(await insertOrganization({ ...params, client: client() })).toBe("org_1");
+    expect(createdOrganization).toMatchObject({ name: "Acme Inc", email: "jenny@acme.com", allowedUsers: 5 });
 });
 
-test("an existing user is moved into the new organization and promoted to admin", async () => {
-    let patchedUser: any = null;
-    let patchedUserId: string | null = null;
-    server.use(
-        http.get(`${MswBaseUrl}/v3/organizations`, () => HttpResponse.json([])),
-        http.post(`${MswBaseUrl}/v3/organizations`, () => HttpResponse.json({ id: "org_1" }, { status: 201 })),
-        http.get(`${MswBaseUrl}/v3/users`, () => HttpResponse.json([{ id: "user_existing" }])),
-        http.patch(`${MswBaseUrl}/v3/users/:id`, async ({ request, params: pathParams }) => {
-            patchedUserId = pathParams["id"] as string;
-            patchedUser = await request.json();
-            return HttpResponse.json({ id: patchedUserId });
-        })
-    );
-
-    await insertOrganization({ ...params, client: client() });
-
-    expect(patchedUserId).toBe("user_existing");
-    expect(patchedUser).toMatchObject({ organizationId: "org_1", role: "organization-admin" });
-});
-
-test("an existing organization does not get a new admin", async () => {
+test("an existing organization is reused", async () => {
     server.use(
         http.get(`${MswBaseUrl}/v3/organizations`, () => HttpResponse.json([{ id: "org_existing" }])),
-        // Any user call here would be an unhandled request and fail the test.
+        // Creating one here would mean the existing organization was ignored.
         http.post(`${MswBaseUrl}/v3/organizations`, () => HttpResponse.error())
     );
 
     expect(await insertOrganization({ ...params, client: client() })).toBe("org_existing");
-});
-
-test("a failure creating the admin fails organization resolution", async () => {
-    server.use(
-        http.get(`${MswBaseUrl}/v3/organizations`, () => HttpResponse.json([])),
-        http.post(`${MswBaseUrl}/v3/organizations`, () => HttpResponse.json({ id: "org_1" }, { status: 201 })),
-        http.get(`${MswBaseUrl}/v3/users`, () => HttpResponse.json([])),
-        http.post(`${MswBaseUrl}/v3/users`, () => HttpResponse.json({ message: "nope" }, { status: 400 }))
-    );
-
-    await expect(insertOrganization({ ...params, client: client() })).rejects.toThrow(
-        /Organization admin creation failed for jenny@acme.com/
-    );
 });
 
 test("a failure creating the organization is surfaced", async () => {

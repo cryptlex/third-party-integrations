@@ -49,7 +49,6 @@ async function createLicenseFromCheckoutSession({ event, client, productId, lice
                 organizationId,
                 companyName: session.customer_details?.business_name,
                 email,
-                customerName,
                 allowedUsers: allowedUsers as number,
                 client
             })

@@ -48,7 +48,7 @@ Set `CRYPTLEX_LICENSE_ASSIGNEE` to `organization` in the checkout session metada
 
 For options 2 and 3, an existing organization with that exact name is reused; otherwise a new organization is created with `CRYPTLEX_ALLOWED_USERS` seats. A license is assigned to either a user or an organization, never both.
 
-When a **new** organization is created this way, the customer is also seeded as its organization admin, using the email and name from the checkout session. If a Cryptlex user with that email already exists outside the organization, it is moved into the organization and promoted rather than created again. This step is skipped for organizations that already existed, since they have their own admins.
+An organization created this way has no members; add its admins in Cryptlex.
 
 `CRYPTLEX_ALLOWED_USERS` is required whenever `CRYPTLEX_LICENSE_ASSIGNEE` is `organization` — the webhook fails if it is missing or is not a positive integer. It is ignored for `user` assignment, and it does not change the seat count of an organization that already exists.
 
@@ -58,7 +58,7 @@ When a **new** organization is created this way, the customer is also seeded as 
 To run this application, you must set the following environment variables in your hosting environment:
 
 - **STRIPE_WEBHOOK_SECRET**: Your Stripe webhook secret, used to verify the authenticity of incoming Stripe events.
-- **CRYPTLEX_ACCESS_TOKEN**: A valid Cryptlex API access token used to authenticate requests to the Cryptlex API. It requires the `license:read`, `license:write`, `user:read`, and `user:write` permissions, plus `organization:read` and `organization:write` when assigning licenses to organizations. The `user:read` and `user:write` permissions are also what allow the organization admin to be seeded.
+- **CRYPTLEX_ACCESS_TOKEN**: A valid Cryptlex API access token used to authenticate requests to the Cryptlex API. It requires the `license:read`, `license:write`, `user:read`, and `user:write` permissions, plus `organization:read` and `organization:write` when assigning licenses to organizations.
 - **CRYPTLEX_WEB_API_BASE_URL**: The base URL of the Cryptlex Web API.
 - **CRYPTLEX_PRODUCT_ID** (only required for `/v1`): The Cryptlex Product ID corresponding to the license you want to create or renew. Not used by `/v2`, which reads the product ID from the checkout session metadata instead.
 - **CRYPTLEX_SUBSCRIPTION_CANCELLATION_ACTION** (optional, `/v2` only): What happens to a license when its subscription is deleted — `revoke` (default) or `delete`.
