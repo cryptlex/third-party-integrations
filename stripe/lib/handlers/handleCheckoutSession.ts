@@ -4,17 +4,25 @@ import { CtlxClientType } from "@shared-utils/client";
 import { HandlerReturn } from "@shared-utils/index";
 import { createLicense } from "@shared-utils/licenseActions";
 import { insertUser } from "@shared-utils/userActions";
-import { getLicenseParamsFromMetadata } from "../utils/getLicenseParamsFromMetadata";
+import { getLicenseParamsFromMetadata, LicenseParams } from "../utils/getLicenseParamsFromMetadata";
+import { insertOrganization } from "../utils/getOrganization";
 
-/** Create the Cryptlex user from the checkout session and issue a license. */
-async function createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId, entitlementSetId }: { event: Stripe.CheckoutSessionCompletedEvent, client: CtlxClientType, productId: string, licenseTemplateId?: string, entitlementSetId?: string }): HandlerReturn {
+type CreateLicenseFromCheckoutSessionParams = Omit<LicenseParams, "licenseTemplateId" | "allowedUsers"> & {
+    event: Stripe.CheckoutSessionCompletedEvent;
+    client: CtlxClientType;
+    /** Absent in the v1 flow, which has no license template. */
+    licenseTemplateId?: string;
+    /** Only the organization assignee needs a seat count. */
+    allowedUsers?: number;
+};
+
+/** Creates the Cryptlex user or organization for a checkout session and issues a license. */
+async function createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId, entitlementSetId, licenseAssignee, organizationId, allowedUsers, licenseKey }: CreateLicenseFromCheckoutSessionParams): HandlerReturn {
     const session = event.data.object;
     const email = session.customer_email ?? session.customer_details?.email;
     if (!email) {
         throw new Error(`Customer email not found in checkout session ${session.id}.`);
     }
-    const userName = session.customer_details?.name ?? `Stripe Checkout ${session.id}`;
-    const userId = await insertUser(email, userName, client);
 
     const metadata = session.mode === "subscription"
         ? [
@@ -32,20 +40,39 @@ async function createLicenseFromCheckoutSession({ event, client, productId, lice
             }
         ];
 
+    const customerName = session.customer_details?.name ?? `Stripe Checkout ${session.id}`;
+
+    // A license goes to either a user or an organization, never both.
+    const assignee = licenseAssignee === "organization"
+        ? {
+            organizationId: await insertOrganization({
+                organizationId,
+                companyName: session.customer_details?.business_name,
+                email,
+                allowedUsers: allowedUsers as number,
+                client
+            })
+        }
+        : {
+            userId: await insertUser(email, customerName, client)
+        };
+
     return await createLicense(client, {
         productId,
-        licenseTemplateId,
+        // Omitted in the v1 flow, which does not use license templates.
+        licenseTemplateId  : licenseTemplateId ?? null,
         entitlementSetId: entitlementSetId ?? null,
-        userId,
+        // Omitted key lets Cryptlex auto-generate one.
+        key: licenseKey ?? null,
+        ...assignee,
         metadata
     });
 }
 
 export async function handleCheckoutSessionFlow({ event, productId, client }: { event: Stripe.CheckoutSessionCompletedEvent, productId: string, client: CtlxClientType }): HandlerReturn {
-    return createLicenseFromCheckoutSession({ event, client, productId });
+    return createLicenseFromCheckoutSession({ event, client, productId, licenseAssignee: 'user' });
 }
 
 export async function handleCheckoutSessionFlowV2({ event, client }: { event: Stripe.CheckoutSessionCompletedEvent, client: CtlxClientType }): HandlerReturn {
-    const { productId, licenseTemplateId, entitlementSetId } = getLicenseParamsFromMetadata(event.data.object.metadata);
-    return createLicenseFromCheckoutSession({ event, client, productId, licenseTemplateId, entitlementSetId });
+    return createLicenseFromCheckoutSession({ event, client, ...getLicenseParamsFromMetadata(event.data.object.metadata) });
 }
